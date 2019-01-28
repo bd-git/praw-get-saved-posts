@@ -9,7 +9,7 @@ Use PRAW to get your saved posts into an sqlite3 db
 
 4) Modify `credentials.py` to contain your Username, Password, ClientID, and ClientSecret
 
-5) Run with `python3 grabdata.py -d ~/posts.sqlite3`  (.\posts.sqlite3 on Windows)
+5) Run with `python3 grabdata.py -d ~/posts.sqlite3`  (`.\posts.sqlite3` on Windows)
 
 6) Open `posts.sqlite3` in a sqlite3 browser to explore data or run queries
  

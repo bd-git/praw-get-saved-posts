@@ -3,6 +3,7 @@ import sqlite3
 import argparse
 import credentials
 from pprint import pprint
+from pathlib import Path
 
 def database_setup(database_file):
     POSTS_TABLE = """
@@ -51,12 +52,12 @@ CREATE TABLE IF NOT EXISTS subreddit (
     allow_images integer,
     allow_videogifs integer,
     allow_videos integer,
-    audience_target text,
-    advertiser_category text,
     subscribers integer,
     accounts_active_is_fuzzed integer
 );
     """
+    #audience_target text,
+    #advertiser_category text,
     
     with sqlite3.connect(database_file) as con:
         c = con.cursor()
@@ -128,13 +129,13 @@ def database_insert_subreddit(_subreddit_instance, cursor):
         int(items['allow_images']),
         int(items['allow_videogifs']),
         int(items['allow_videos']),
-        items['audience_target'],
-        items['advertiser_category'],
+        #items['audience_target'],
+        #items['advertiser_category'],
         int(items['subscribers']),
         int(items['accounts_active_is_fuzzed'])
         )
     try:
-        cursor.execute("INSERT INTO subreddit VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", subinfo)
+        cursor.execute("INSERT INTO subreddit VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", subinfo)
     except:
         pprint(subinfo)
         [print(type(val)) for val in subinfo]
@@ -211,7 +212,7 @@ def main():
         "--database",
         type=str,
         help="the database to write to, which will be created if it does not exist",
-        default="~/savedposts.sqlite3"
+        default=Path(".") / "savedposts.sqlite3" #~/savedposts.sqlite3"
     )
     
     args = argparser.parse_args()

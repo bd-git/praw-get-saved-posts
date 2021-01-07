@@ -91,6 +91,20 @@ def main():
         
         pbar.close()
         logging.info(f"Subreddit insert complete, inserted {inserts} subreddits, committing to database")
+
+        logging.info(f"Check for missing subreddit table rows, then commit to database")
+        missing_subreddits = [x[0] for x in utils.database_find_missing_subreddits(cursor)]
+
+        if len(missing_subreddits)>0:
+            for sub in missing_subreddits:
+                subreddit_instance = reddit.subreddit(sub)
+                subreddit_instance._fetch()
+                utils.database_insert_subreddit(subreddit_instance, cursor)
+            con.commit()
+
+        logging.info(f"Clean-up orphan subreddit table rows, then commit to database")
+        utils.database_cleanup_subreddit_table(cursor)
+        con.commit()
         
 # Run the main program if called directly
 if __name__ == "__main__":

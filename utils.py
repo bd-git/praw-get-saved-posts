@@ -113,6 +113,7 @@ def database_insert_post(_post, cursor):
 
 def database_insert_subreddit(_subreddit_instance, cursor):
     items = vars(_subreddit_instance)
+    print(f"Inserting subreddit {items['display_name']}")
     subinfo =(
         items['id'],
         items['name'],
@@ -222,6 +223,37 @@ def database_get_posts_id_type_ifsaved(cursor):
 
 def database_unsave_post(_postid, cursor):
     return cursor.execute("UPDATE post SET is_saved = 0 WHERE id = ? ", (_postid,))
+
+def database_get_posts_subreddits(cursor):
+    return [x[0] for x in cursor.execute("select p.subreddit_id from post p").fetchall()]
+
+def database_get_subreddit_subreddits(cursor):
+    return [x[0] for x in cursor.execute("select s.name from subreddit s").fetchall()] 
+
+def database_delete_post(_postid, cursor):
+    return cursor.execute("DELETE FROM post WHERE id = ?",(_postid,))
+
+def database_delete_subreddit(_subredditid, cursor):
+    cursor.execute("DELETE FROM subreddit WHERE id = ?",(_subredditid,))
+
+def database_cleanup_subreddit_table(cursor):
+    orphan_subreddits = cursor.execute("""
+    select
+        s.id
+    from subreddit s 
+    where s.name not in (select p.subreddit_id from post p)
+    """).fetchall()
+    for orphan in orphan_subreddits:
+        database_delete_subreddit(orphan[0],cursor)
+
+def database_find_missing_subreddits(cursor):
+    missing_subreddits = cursor.execute("""
+    select distinct
+        p.subreddit
+    from post p
+    where p.subreddit_id not in (select s.name from subreddit s)
+    """).fetchall()
+    return missing_subreddits
 
 if __name__ == "__main__":
     print("Import Me!")
